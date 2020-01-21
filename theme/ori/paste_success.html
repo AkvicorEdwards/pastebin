@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="{{ .lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ .title }}</title>
+    <style>
+        #content {
+            width: auto;
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="content">
+    <br/>
+    <div id="header"></div>
+    <br/> <br/>
+    <h1>Success!</h1>
+    <a>How to access this Paste <strong>{{ .id }}</strong> :</a>
+    <ul>
+        <li>Enter Paste's number in the nav bar area.</li>
+        <li>Direct click to access: <a href="{{ .url }}{{ .id }}">{{ .url }}{{ .id }}</a></li>
+{{/*        <li>Scan the QR code</li>*/}}
+    </ul>
+    <button onclick="location.replace({{ .url }})">Return</button>
+
+
+</div>
+
+</body>
+</html>

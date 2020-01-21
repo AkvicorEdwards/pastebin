@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="{{ .lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ .title }}</title>
+    <style>
+        #content {
+            width: auto;
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+        /* textarea 自适应父容器大小 */
+        .comments {
+            width: 100%; /*自动适应父布局宽度*/
+            overflow: auto;
+            word-break: break-all;
+            /*在ie中解决断行问题(防止自动变为在一行显示，主要解决ie兼容问题，ie8中当设宽度为100%时，文本域类容超过一行时，当我们双击文本内容就会自动变为一行显示，所以只能用ie的专有断行属性“word-break或word-wrap”控制其断行)*/
+        }
+    </style>
+    <script type="text/javascript">
+        let url = {{ .url }};
+        let urlShort = {{ .urlShort }};
+    </script>
+</head>
+<body>
+
+<div id="content">
+    <br/>
+    <div id="header"></div>
+    <br/> <br/>
+
+{{/*    <form action="api/paste" method="post" name="paste" enctype="multipart/form-data">*/}}
+    <form action="api/paste" method="post" name="paste">
+        <strong>可选参数：</strong>
+        显示模式：
+        <label>
+            <select name="highlight">
+                <option value="txt" selected>TXT</option>
+                <option value="markdown">Markdown</option>
+                <option value="c">C</option>
+                <option value="c++">C++</option>
+                <option value="go">Go</option>
+                <option value="python">Python</option>
+                <option value="php">PHP</option>
+                <option value="java">Java</option>
+                <option value="docker">Docker</option>
+                <option value="shell">Shell</option>
+                <option value="makefile">Makefile</option>
+                <option value="regex">Regex</option>
+                <option value="latex">LaTeX</option>
+                <option value="r">R</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="js">JS</option>
+                <option value="c#">C#</option>
+                <option value="kotlin">Kotlin</option>
+                <option value="powershell">PowerShell</option>
+                <option value="haskell">Haskell</option>
+                <option value="scala">Scala</option>
+                <option value="json">JSON</option>
+                <option value="sql">SQL</option>
+                <option value="lua">Lua</option>
+                <option value="dart">Dart</option>
+                <option value="swift">Swift</option>
+                <option value="matlab">MatLab</option>
+                <option value="nginx">Nginx</option>
+                <option value="yaml">YAML</option>
+                <option value="vim">Vim</option>
+                <option value="ini">Ini</option>
+                <option value="webassembly">WebAssembly</option>
+            </select>
+        </label>
+        <label>
+            标题：
+            <input type="text" name="title">
+        </label>
+        <label>
+            密码：
+            <input type="password" name="password" placeholder="默认无">
+        </label>
+        <label>
+            可阅读次数：
+            <input type="number" name="times" placeholder="默认无限">
+        </label>
+        <label>
+            持续时间：
+            <input type="number" name="deadline" placeholder="默认无限"> 小时
+        </label>
+{{/*        <br />*/}}
+{{/*        <label>*/}}
+{{/*            附加文件 - 仅支持单文件上传（多文件时推荐压缩后上传）：*/}}
+{{/*            <input type="file" name="file">*/}}
+{{/*        </label>*/}}
+        <br/> <br/>
+        <label>
+            <textarea class="comments" name="content" rows="30" cols="120" required></textarea>
+        </label> <br/> <br/>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+</body>
+<script type="text/javascript" src="js/getContent.js"></script>
+</html>

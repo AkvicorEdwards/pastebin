@@ -1,0 +1,10 @@
+version: 1.0
+
+server:
+  title: Akvicor's PasteBin
+  addr: :8080
+  password: pass
+
+path:
+  theme: ./theme/ori/
+

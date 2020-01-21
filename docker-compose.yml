@@ -1,0 +1,10 @@
+version: "3"
+services:
+  hwsi:
+    image:
+    container_name: pastebin
+    restart: always
+    volumes:
+      - ./config:/go/src/github.com/AkvicorEdwards/pastebin/config
+    ports:
+      - 8080:80
