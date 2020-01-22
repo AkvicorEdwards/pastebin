@@ -4,6 +4,13 @@ server:
   title: Akvicor's PasteBin
   addr: :8080
   password: pass
+  protocol: http
+
+mysql:
+  user: root
+  database: pastebin
+  password: password
+  charset: utf8
 
 path:
   theme: ./theme/ori/

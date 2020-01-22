@@ -85,6 +85,6 @@ function loadScript(url, callback){
     document.getElementsByTagName("head")[0].appendChild(script);
 }
 
-setHeader();
-getContent(url);
+
+
 

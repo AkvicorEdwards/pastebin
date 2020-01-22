@@ -23,7 +23,9 @@ const (
 
 func Paste(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		db, err := sql.Open("mysql", "root:password@/pastebin?charset=utf8")
+
+		db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s?charset=%s",
+			config.Data.Mysql.User, config.Data.Mysql.Password, config.Data.Mysql.Database, config.Data.Mysql.Charset))
 		if err != nil {
 			_, _ = fmt.Fprint(w, ERROR)
 			panic(err)
@@ -157,7 +159,8 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		db, err := sql.Open("mysql", "root:password@/pastebin?charset=utf8")
+		db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s?charset=%s",
+			config.Data.Mysql.User, config.Data.Mysql.Password, config.Data.Mysql.Database, config.Data.Mysql.Charset))
 		if err != nil {
 			_, _ = fmt.Fprintf(w, `{"status": "%d"}`, ERROR)
 			panic(err)

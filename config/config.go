@@ -17,6 +17,7 @@ var path = "./config/config.yaml"
 type Config struct {
 	Server cServer `yaml:"server"`
 	Path cPath `yaml:"path"`
+	Mysql cMysql `yaml:"mysql"`
 }
 
 // Path for Config
@@ -30,6 +31,14 @@ type cServer struct {
 	Title string `yaml:"title"`
 	Addr string `yaml:"addr"`
 	Password string `yaml:"password"`
+	Protocol string `yaml:"protocol"`
+}
+
+type cMysql struct {
+	User string `yaml:"user"`
+	Database string `yaml:"database"`
+	Password string `yaml:"password"`
+	Charset string `yaml:"charset"`
 }
 
 func ParseYaml() {
