@@ -37,31 +37,6 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 			}
 		}()
 
-		//// TODO
-		//// 处理表单文件
-		//// 根据字段名获取表单文件
-		//formFile, header, err := r.FormFile("uploadfile")
-		//if err != nil {
-		//	log.Behaviour.Printf("Get form file failed: %s\n", err)
-		//	return
-		//}
-		//defer formFile.Close()
-		//// 创建保存文件
-		//destFile, err := os.Create("./upload/" + header.Filename)
-		//if err != nil {
-		//	log.Behaviour.Printf("Create failed: %s\n", err)
-		//	return
-		//}
-		//defer destFile.Close()
-		//
-		//// 读取表单文件，写入保存文件
-		//_, err = io.Copy(destFile, formFile)
-		//if err != nil {
-		//	log.Behaviour.Printf("Write file failed: %s\n", err)
-		//	return
-		//}
-		//// 处理文件结束
-
 		if err = r.ParseForm(); err != nil {
 			_, _ = fmt.Fprint(w, ERROR)
 			panic(err)
@@ -109,8 +84,6 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 				panic(err)
 				return
 		}
-		//fmt.Fprintln(w, "password: [", pwd, "] times: [", times, "] deadline: [", deadline,
-		//	"] \npaste:\n", paste.String())
 
 		result, err := db.Exec("insert into paste (pwd, times, deadline, paste) " +
 			"values(?, ?, date_add(now(), interval ? hour), ?)",
