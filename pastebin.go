@@ -1,15 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"pastebin/config"
 	"pastebin/handler"
-	log "pastebin/logger"
 	"time"
 )
 
 func main() {
-	log.Init()
 	config.ParseYaml()
 	handler.ParsePrefix()
 
@@ -18,7 +17,8 @@ func main() {
 		Handler:           &handler.MyHandler{},
 		ReadTimeout:       20 * time.Second,
 	}
-	log.Behaviour.Print("ListenAndServe: ", config.Data.Server.Addr)
+
+	fmt.Println("ListenAndServe: ", config.Data.Server.Addr)
 	if err := server.ListenAndServe(); err != nil {
 		panic(err)
 	}

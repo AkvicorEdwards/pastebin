@@ -33,6 +33,8 @@ func (*MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/js/", http.FileServer(http.Dir(config.Data.Path.Theme+"js/"))).ServeHTTP(w, r)
 	} else if ok, _ := regexp.MatchString("/img/", r.URL.String()); ok {
 		http.StripPrefix("/img/", http.FileServer(http.Dir(config.Data.Path.Theme+"img/"))).ServeHTTP(w, r)
+	} else if ok, _ := regexp.MatchString("/file/", r.URL.String()); ok {
+		http.StripPrefix("/file/", http.FileServer(http.Dir(config.Data.Path.File))).ServeHTTP(w, r)
 	} else {
 		mux["/"](w, r)
 	}

@@ -16,8 +16,13 @@ function setHeader() {
 
 let password = null;
 
-function getDisContent(lan, cont) {
-    return '<pre class="line-numbers"><code class="language-' + lan + '">' + cont + '</code></pre>';
+function getDisContent(lan, cont, file) {
+    let html = '<ul id="filelist">';
+    for(let i = 0; i < file.length; i++) {
+        html += '<li><a download="'+file[i].real+'" href="'+urlShort+'file/'+file[i].name+'">'+file[i].real+'</a></li>'
+    }
+    html += '</ul><br/> <br/><pre class="line-numbers"><code class="language-' + lan + '">' + cont + '</code></pre>';
+    return html;
 }
 
 function getContent(url) {
@@ -34,7 +39,7 @@ function getContent(url) {
                 document.getElementById("box").innerHTML = disPassword;
             }else if (paste.status === "0") {
                 console.log("222");
-                document.getElementById("box").innerHTML = getDisContent(paste.highlight, paste.content);
+                document.getElementById("box").innerHTML = getDisContent(paste.highlight, paste.content, paste.file);
                 loadScript("js/prism.js", (function() { }));
                 //document.getElementById("code").innerText = paste.content;
             }

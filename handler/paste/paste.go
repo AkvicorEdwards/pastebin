@@ -6,10 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
+	"math/rand"
 	"net/http"
+	"os"
 	"pastebin/config"
-	log "pastebin/logger"
 	"strconv"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -23,6 +26,126 @@ const (
 
 func Paste(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
+		//r.Body = http.MaxBytesReader(w, r.Body, 32<<20)
+		mr, err := r.MultipartReader()
+		if err != nil {
+			fmt.Println(err)
+		}
+		
+		form := make(map[string]string, 0)
+
+		maxValueBytes := int64(10 << 20)
+		type f struct {
+			Name string `json:"name"`
+			Real string	`json:"real"`
+		}
+		file := make([]f, 0)
+		for {
+			part, err := mr.NextPart()
+			if err == io.EOF {
+				break
+			}
+			name := part.FormName()
+			handleForm := func(name string)  {
+				var b bytes.Buffer
+				_, err := io.CopyN(&b, part, maxValueBytes)
+				if err != nil && err != io.EOF {
+					fmt.Sprintln(err)
+					fmt.Fprintln(w, err)
+				}
+				switch name {
+				case "highlight":
+					form["highlight"] = b.String()
+				case "title":
+					form["title"] = b.String()
+				case "password":
+					form["password"] = b.String()
+				case "times":
+					form["times"] = b.String()
+				case "deadline":
+					form["deadline"] = b.String()
+				case "content":
+					form["content"] = b.String()
+				}
+			}
+			if name == "" {
+				continue
+			}
+			if name != "file" {
+				handleForm(name)
+				continue
+			}
+			fileName := strconv.FormatInt(time.Now().Unix(), 10)+ "_" + strconv.FormatInt(int64(rand.Int()), 10) + "_" + part.FileName()
+			file = append(file, f{
+				Name: fileName,
+				Real: part.FileName(),
+			})
+
+			func(){
+				dst, err := os.Create(config.Data.Path.File + fileName)
+				if err != nil {
+					fmt.Println(err)
+				}
+				defer dst.Close()
+				for {
+					buffer := make([]byte, 100000)
+					cBytes, errs := part.Read(buffer)
+
+					n, err := dst.Write(buffer[0:cBytes])
+					if err != nil {
+						fmt.Println(cBytes)
+						fmt.Println(n)
+						fmt.Println(err)
+					}
+					if errs == io.EOF {
+						break
+					}
+				}
+			}()
+		}
+
+		// times
+		times := 1000000000
+		if len(form["times"]) != 0 {
+			times, err =  strconv.Atoi(fmt.Sprint(form["times"]))
+			if err != nil {
+				_, _ = fmt.Fprint(w, ERROR)
+				panic(err)
+				return
+			}
+		}
+
+		// deadline
+		deadline := 876000
+		if len(form["deadline"]) != 0 {
+			deadline, err =  strconv.Atoi(fmt.Sprint(form["deadline"]))
+			if err != nil {
+				_, _ = fmt.Fprint(w, ERROR)
+				panic(err)
+				return
+			}
+		}
+
+		// password
+		pwd := ""
+		if len(form["password"]) != 0 {
+			pwd = fmt.Sprint(form["password"])
+		}
+
+		// paste
+		paste := bytes.NewBuffer([]byte{})
+		jsonEncoder := json.NewEncoder(paste)
+		jsonEncoder.SetEscapeHTML(false)
+		if err = jsonEncoder.Encode(map[string]interface{}{
+			"title": fmt.Sprint(form["title"]),
+			"highlight": fmt.Sprint(form["highlight"]),
+			"file": file,
+			"content": fmt.Sprint(form["content"]),
+		}); err != nil {
+			_, _ = fmt.Fprint(w, ERROR)
+				panic(err)
+				return
+		}
 
 		db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s?charset=%s",
 			config.Data.Mysql.User, config.Data.Mysql.Password, config.Data.Mysql.Database, config.Data.Mysql.Charset))
@@ -36,54 +159,6 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 				panic(err)
 			}
 		}()
-
-		if err = r.ParseForm(); err != nil {
-			_, _ = fmt.Fprint(w, ERROR)
-			panic(err)
-			return
-		}
-
-		// times
-		times := 1000000000
-		if len(r.PostForm["times"][0]) != 0 {
-			times, err =  strconv.Atoi(fmt.Sprint(r.PostForm["times"][0]))
-			if err != nil {
-				_, _ = fmt.Fprint(w, ERROR)
-				panic(err)
-				return
-			}
-		}
-
-		// deadline
-		deadline := 876000
-		if len(r.PostForm["deadline"][0]) != 0 {
-			deadline, err =  strconv.Atoi(fmt.Sprint(r.PostForm["deadline"][0]))
-			if err != nil {
-				_, _ = fmt.Fprint(w, ERROR)
-				panic(err)
-				return
-			}
-		}
-
-		// password
-		pwd := ""
-		if len(r.PostForm["password"][0]) != 0 {
-			pwd = fmt.Sprint(r.PostForm["password"][0])
-		}
-
-		// paste
-		paste := bytes.NewBuffer([]byte{})
-		jsonEncoder := json.NewEncoder(paste)
-		jsonEncoder.SetEscapeHTML(false)
-		if err = jsonEncoder.Encode(map[string]string{
-			"title": fmt.Sprint(r.PostForm["title"][0]),
-			"highlight": fmt.Sprint(r.PostForm["highlight"][0]),
-			"content": fmt.Sprint(r.PostForm["content"][0]),
-		}); err != nil {
-			_, _ = fmt.Fprint(w, ERROR)
-				panic(err)
-				return
-		}
 
 		result, err := db.Exec("insert into paste (pwd, times, deadline, paste) " +
 			"values(?, ?, date_add(now(), interval ? hour), ?)",
@@ -104,7 +179,7 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := t.Execute(w, phrase); err != nil {
-			log.Behaviour.Println(err)
+			fmt.Println(err)
 			_, _ = fmt.Fprintf(w, "%v", "Error")
 		}
 	}else if r.Method == "GET" {
@@ -152,14 +227,18 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 			return
 		}
+
 		paste := ""
 		password := ""
-		for rows.Next() {
+		if rows.Next() {
 			if err = rows.Scan(&password, &paste); err != nil {
 				_, _ = fmt.Fprintf(w, `{"status": "%d"}`, ERROR)
 				panic(err)
 				return
 			}
+		}else {
+			_, _ = fmt.Fprintf(w, `{"status": "%d"}`, NONEXISTENT)
+			return
 		}
 		//fmt.Println(paste)
 		if len(paste) == 0 {
@@ -171,6 +250,8 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		_, err = db.Exec("update paste set times = times-1 where id = ? limit 1", id)
 		_, _ = fmt.Fprintf(w, `{"status": "%d", %s`, ACCEPT, paste[1:])
 	}
 }
+

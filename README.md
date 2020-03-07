@@ -19,4 +19,4 @@ go build pastebin.go
 # TODO
 
 - 文件上传
-- Docker 
+

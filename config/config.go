@@ -23,7 +23,7 @@ type Config struct {
 // Path for Config
 type cPath struct {
 	Theme string `yaml:"theme"`
-	Work string `yaml:"work"`
+	File string `yaml:"file"`
 }
 
 // Server for Config

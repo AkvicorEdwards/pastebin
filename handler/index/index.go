@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"net/http"
 	"pastebin/config"
-	log "pastebin/logger"
 )
 
 func Paste(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +21,7 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 			"urlShort": urlShort,
 		}
 		if err := t.Execute(w, phrase); err != nil {
-			log.Behaviour.Println(err)
+			fmt.Println(err)
 			_, _ = fmt.Fprintf(w, "%v", "Error")
 		}
 	}else {
@@ -39,7 +38,7 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := t.Execute(w, phrase); err != nil {
-			log.Behaviour.Println(err)
+			fmt.Println(err)
 			_, _ = fmt.Fprintf(w, "%v", "Error")
 		}
 
