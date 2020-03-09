@@ -89,6 +89,7 @@ func Raw(w http.ResponseWriter, r *http.Request) {
 		_, _ = fmt.Fprint(w, "Need Password")
 		return
 	}
+	_, _ = db.Exec("update paste set times = times-1 where id = ? limit 1", id)
 	content := struct {
 		Content string `json:"content"`
 	}{}

@@ -253,7 +253,7 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err = db.Exec("update paste set times = times-1 where id = ? limit 1", id)
+		_, _ = db.Exec("update paste set times = times-1 where id = ? limit 1", id)
 		_, _ = fmt.Fprintf(w, `{"status": "%d", %s`, ACCEPT, paste[1:])
 	}
 }
