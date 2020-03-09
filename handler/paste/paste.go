@@ -75,6 +75,9 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 				handleForm(name)
 				continue
 			}
+			if len(part.FileName()) == 0 {
+				continue
+			}
 			fileName := strconv.FormatInt(time.Now().Unix(), 10)+ "_" + strconv.FormatInt(int64(rand.Int()), 10) + "_" + part.FileName()
 			file = append(file, f{
 				Name: fileName,

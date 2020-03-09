@@ -1,10 +1,13 @@
 package index
 
 import (
+	"database/sql"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
 	"pastebin/config"
+	"strings"
 )
 
 func Paste(w http.ResponseWriter, r *http.Request) {
@@ -48,3 +51,52 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func Raw(w http.ResponseWriter, r *http.Request) {
+	id := strings.Split(fmt.Sprintf("%s", r.URL)[5:], "?")[0]
+	que, ok := r.URL.Query()["pwd"]
+	pwd := ""
+	if ok {
+		pwd = que[0]
+	}
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/%s?charset=%s",
+		config.Data.Mysql.User, config.Data.Mysql.Password, config.Data.Mysql.Database, config.Data.Mysql.Charset))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer func() {
+		if err = db.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+	rows, err := db.Query("select pwd, paste from paste where id = ? and deadline > now() and times > 0 limit 1", id)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	paste := ""
+	password := ""
+	if rows.Next() {
+		if err = rows.Scan(&password, &paste); err != nil {
+			fmt.Println(err)
+			return
+		}
+	}else {
+		return
+	}
+	if len(password)!=0 && pwd != password {
+		_, _ = fmt.Fprint(w, "Need Password")
+		return
+	}
+	content := struct {
+		Content string `json:"content"`
+	}{}
+	err = json.Unmarshal([]byte(paste), &content)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	_, _ = fmt.Fprint(w, content.Content)
+	return
+}

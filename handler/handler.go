@@ -14,6 +14,7 @@ var mux map[string]func(http.ResponseWriter, *http.Request)
 func ParsePrefix() {
 	mux = make(map[string]func(http.ResponseWriter, *http.Request))
 	mux["/"] = index.Paste
+	mux["/raw"] = index.Raw
 	mux["/api/paste"] = paste.Paste
 
 	mux["/favicon.ico"] = http.FileServer(http.Dir(config.Data.Path.Theme+"img/")).ServeHTTP
@@ -35,6 +36,8 @@ func (*MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.StripPrefix("/img/", http.FileServer(http.Dir(config.Data.Path.Theme+"img/"))).ServeHTTP(w, r)
 	} else if ok, _ := regexp.MatchString("/file/", r.URL.String()); ok {
 		http.StripPrefix("/file/", http.FileServer(http.Dir(config.Data.Path.File))).ServeHTTP(w, r)
+	} else if ok, _ := regexp.MatchString("/raw/", r.URL.String()); ok {
+		mux["/raw"](w , r)
 	} else {
 		mux["/"](w, r)
 	}
