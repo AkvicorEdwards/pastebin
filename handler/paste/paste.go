@@ -88,6 +88,7 @@ func Paste(w http.ResponseWriter, r *http.Request) {
 				dst, err := os.Create(config.Data.Path.File + fileName)
 				if err != nil {
 					fmt.Println(err)
+					return
 				}
 				defer dst.Close()
 				for {
