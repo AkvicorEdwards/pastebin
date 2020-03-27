@@ -21,10 +21,17 @@ function getDisContent(lan, cont, file) {
     for(let i = 0; i < file.length; i++) {
         html += '<li><a download="'+file[i].real+'" href="'+urlShort+'file/'+file[i].name+'">'+file[i].real+'</a></li>'
     }
-    html += '</ul><br/> <br/><pre class="line-numbers"><code class="language-' + lan + '">' + cont + '</code></pre>';
+    html += '</ul><br/> <br/><pre class="line-numbers"><code class="language-' + lan + '">' + HTMLEncode(cont) + '</code></pre>';
     return html;
 }
 
+function HTMLEncode(html) {
+    let temp = document.createElement("div");
+    (temp.textContent != null) ? (temp.textContent = html) : (temp.innerText = html);
+    let output = temp.innerHTML;
+    temp = null;
+    return output;
+}
 function getContent(url) {
     let httpRequest = new XMLHttpRequest();
     httpRequest.open('GET', url, true);
