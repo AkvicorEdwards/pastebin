@@ -16,7 +16,16 @@ go build pastebin.go
 # ListenAndServe: localhost:8080
 ```
 
-# TODO
+## Usage
 
-- 文件上传
+```bash
+# Full content
+localhost:8080/1
+
+# Text content
+localhost:8080/raw/1
+# if password == 12345
+localhost:8080/raw/1?pwd=12345
+
+```
 
