@@ -35,6 +35,9 @@ func (*MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else if ok, _ := regexp.MatchString("/img/", r.URL.String()); ok {
 		http.StripPrefix("/img/", http.FileServer(http.Dir(config.Data.Path.Theme+"img/"))).ServeHTTP(w, r)
 	} else if ok, _ := regexp.MatchString("/file/", r.URL.String()); ok {
+		if r.URL.String() == "/file/" {
+			return
+		}
 		http.StripPrefix("/file/", http.FileServer(http.Dir(config.Data.Path.File))).ServeHTTP(w, r)
 	} else if ok, _ := regexp.MatchString("/raw/", r.URL.String()); ok {
 		mux["/raw"](w , r)
